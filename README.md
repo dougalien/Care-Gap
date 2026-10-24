@@ -1,12 +1,14 @@
+<p><a href="https://dougalien.com"><img src="assets/dougalien_systems_logo.png" alt="Dougalien Systems" height="48"></a></p>
+
 # The Care Gap
 
 An interactive page about the U.S. care maintenance gap. It shows how many people aged 45 to 64 there are for each person aged 80 and over, and lets you test ways the gap could be handled: immigration, a bigger paid care workforce, healthier aging, and robots and AI.
 
-It accompanies the manuscript *When the Supports Run Out: Below-Replacement Fertility, the Falling Helper Ratio, and the U.S. Care Maintenance Gap* (Douglas E. Allen).
+A [Dougalien Systems](https://dougalien.com) app. It accompanies the manuscript *When the Supports Run Out: Below-Replacement Fertility, the Falling Helper Ratio, and the U.S. Care Maintenance Gap* (Douglas E. Allen).
 
 ## Run it
 
-Open `index.html` in any browser. It is one file of plain HTML, CSS and JavaScript, with no build step and no dependencies apart from Google Fonts. It also works as a GitHub Pages site.
+Open `index.html` in any browser. It is one file of plain HTML, CSS and JavaScript, with no build step and no dependencies apart from Google Fonts. It uses the Dougalien Systems palette (sand, slate and rust from the logo) and the Familjen Grotesk display face, matching dougalien.com and the other Dougalien apps; the logo files are in `assets/`. It also works as a GitHub Pages site.
 
 ## How the simulator works
 

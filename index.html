@@ -3,39 +3,47 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj48Y2xpcFBhdGggaWQ9Im0iPjxwYXRoIGQ9Ik0yMiAxMCBINTggQTUwIDUwIDAgMCAxIDU4IDExMCBIMjIgWiIvPjwvY2xpcFBhdGg+PGcgY2xpcC1wYXRoPSJ1cmwoI20pIj48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iNjIiIGhlaWdodD0iMzAiIGZpbGw9IiNENkIyN0MiLz48cmVjdCB4PSIwIiB5PSIzMCIgd2lkdGg9IjYyIiBoZWlnaHQ9IjIyIiBmaWxsPSIjM0U1QzZCIi8+PHJlY3QgeD0iMCIgeT0iNTIiIHdpZHRoPSI2MiIgaGVpZ2h0PSIyNiIgZmlsbD0iI0I0NTMyQSIvPjxyZWN0IHg9IjAiIHk9Ijc4IiB3aWR0aD0iNjIiIGhlaWdodD0iMTgiIGZpbGw9IiNENkIyN0MiLz48cmVjdCB4PSIwIiB5PSI5NiIgd2lkdGg9IjYyIiBoZWlnaHQ9IjI0IiBmaWxsPSIjM0U1QzZCIi8+PHJlY3QgeD0iNjUiIHk9Ii0xMiIgd2lkdGg9IjU1IiBoZWlnaHQ9IjMwIiBmaWxsPSIjRDZCMjdDIi8+PHJlY3QgeD0iNjUiIHk9IjE4IiB3aWR0aD0iNTUiIGhlaWdodD0iMjIiIGZpbGw9IiMzRTVDNkIiLz48cmVjdCB4PSI2NSIgeT0iNDAiIHdpZHRoPSI1NSIgaGVpZ2h0PSIyNiIgZmlsbD0iI0I0NTMyQSIvPjxyZWN0IHg9IjY1IiB5PSI2NiIgd2lkdGg9IjU1IiBoZWlnaHQ9IjE4IiBmaWxsPSIjRDZCMjdDIi8+PHJlY3QgeD0iNjUiIHk9Ijg0IiB3aWR0aD0iNTUiIGhlaWdodD0iMjQiIGZpbGw9IiMzRTVDNkIiLz48cmVjdCB4PSI2NSIgeT0iMTA4IiB3aWR0aD0iNTUiIGhlaWdodD0iMTIiIGZpbGw9IiNENkIyN0MiLz48L2c+PC9zdmc+">
 <title>The Care Gap</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&display=swap">
 <style>
-/* Layout: one narrow column; the simulator is the main panel, with the sliders on the left and the result on the right at desktop width. */
+/* Dougalien Systems look (logo sand, slate and rust on paper, matching dougalien.com). Single light theme, as in the other Dougalien apps.
+   Layout: brand bar with the strata stripe, then one column; the simulator puts sliders left and results right at desktop width. */
 :root{
-  --bg:#f3f5f4; --surface:#ffffff; --ink:#18221f; --muted:#5b6a65; --line:#d8dfdc;
-  --accent:#1d6b5f; --accent-soft:#d9ebe7; --gap:#c7782a; --gap-soft:#f4e3d1;
-  --l-imm:#2f6fa8; --l-care:#1d6b5f; --l-health:#7a5aa6; --l-tech:#8a8f3a;
-  --display:"Source Serif 4", Georgia, serif;
-  --body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --bg:#F4F4F1; --surface:#FFFFFF; --ink:#1B1E20; --muted:#2F3A40; --axis:#586770; --line:#D6DBDA;
+  --accent:#3E5C6B; --accent-soft:#E2EAEC; --gap:#B4532A; --gap-soft:#EFE8DA; --sand:#D6B27C;
+  --l-imm:#3E5C6B; --l-care:#B4532A; --l-health:#D6B27C; --l-tech:#2F3A40;
+  --display:"Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono:"Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#121816; --surface:#1a2220; --ink:#e6ece9; --muted:#9aa9a4; --line:#2c3633;
-  --accent:#5fb8a8; --accent-soft:#1f3a35; --gap:#e39a52; --gap-soft:#3a2a1b;
-  --l-imm:#6aa6dc; --l-care:#5fb8a8; --l-health:#a98bd4; --l-tech:#bcc26a; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#121816; --surface:#1a2220; --ink:#e6ece9; --muted:#9aa9a4; --line:#2c3633;
-  --accent:#5fb8a8; --accent-soft:#1f3a35; --gap:#e39a52; --gap-soft:#3a2a1b;
-  --l-imm:#6aa6dc; --l-care:#5fb8a8; --l-health:#a98bd4; --l-tech:#bcc26a; color-scheme:dark}
+.brandbar{position:relative;margin-left:calc(-1 * max(16px, env(safe-area-inset-left, 0px)));margin-right:calc(-1 * max(16px, env(safe-area-inset-right, 0px)));padding:12px max(16px, env(safe-area-inset-right, 0px)) 17px max(16px, env(safe-area-inset-left, 0px));background:var(--bg)}
+.brandbar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:linear-gradient(90deg,var(--sand) 0 22%,var(--accent) 22% 34%,var(--sand) 34% 62%,var(--gap) 62% 70%,var(--sand) 70% 88%,var(--accent) 88% 100%)}
+.brandbar-inner{max-width:980px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.lockup{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font:700 1.25rem var(--display);border-radius:4px}
+.lockup:hover{opacity:.8}
+.lockup:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.mark{width:32px;height:32px}
+.appname{font:600 .9rem var(--display);color:var(--accent)}
+footer{max-width:980px;margin:0 auto;padding-block:20px 36px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+footer .lockup{font-size:1rem}
+footer .mark{width:22px;height:22px}
 *{box-sizing:border-box}
+html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 main{max-width:980px;margin:0 auto;padding-block:28px 56px;display:grid;gap:36px}
-h1,h2{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1,h2{font-family:var(--display);letter-spacing:-.01em;text-wrap:balance;margin:0;line-height:1.15}
 h1{font-size:2.3rem}
-h2{font-size:1.45rem}
+h2{font-size:1.45rem;color:var(--accent)}
 p{margin:0}
 .lead{color:var(--muted);max-width:62ch;margin-top:8px}
 .eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 a{color:var(--accent)}
+a:hover{color:var(--gap)}
 section{display:grid;gap:14px}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
 
@@ -43,11 +51,12 @@ section{display:grid;gap:14px}
 .ratio{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:24px;align-items:center}
 .big{font-family:var(--mono);font-size:3.4rem;line-height:1}
 .people{display:flex;flex-wrap:wrap;gap:4px;align-items:flex-end;margin:12px 0 6px}
-svg text{fill:var(--muted);font:11px var(--body)}
+svg text{fill:var(--axis);font:11px var(--body)}
 
 /* Chips */
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{font:600 .9rem var(--body);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px;cursor:pointer}
+.chip:hover{border-color:var(--gap)}
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
 .chip:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
@@ -88,6 +97,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 </head>
 <body>
 
+<div class="brandbar"><div class="brandbar-inner"><a class="lockup" href="https://dougalien.com" target="_blank" rel="noopener" aria-label="Dougalien Systems home page (opens in a new tab)" title="Visit dougalien.com"><svg class="mark" viewBox="0 0 120 120" aria-hidden="true"><clipPath id="dsm"><path d="M22 10 H58 A50 50 0 0 1 58 110 H22 Z"/></clipPath><g clip-path="url(#dsm)"><rect x="0" y="0" width="62" height="30" fill="#D6B27C"/><rect x="0" y="30" width="62" height="22" fill="#3E5C6B"/><rect x="0" y="52" width="62" height="26" fill="#B4532A"/><rect x="0" y="78" width="62" height="18" fill="#D6B27C"/><rect x="0" y="96" width="62" height="24" fill="#3E5C6B"/><rect x="65" y="-12" width="55" height="30" fill="#D6B27C"/><rect x="65" y="18" width="55" height="22" fill="#3E5C6B"/><rect x="65" y="40" width="55" height="26" fill="#B4532A"/><rect x="65" y="66" width="55" height="18" fill="#D6B27C"/><rect x="65" y="84" width="55" height="24" fill="#3E5C6B"/><rect x="65" y="108" width="55" height="12" fill="#D6B27C"/></g></svg>Dougalien Systems</a><span class="appname">The Care Gap</span></div></div>
 <main>
 <header>
   <p class="eyebrow">When the Supports Run Out</p>
@@ -136,6 +146,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   <div class="facts" id="facts"></div>
 </section>
 </main>
+<footer><a class="lockup" href="https://dougalien.com" target="_blank" rel="noopener" aria-label="Dougalien Systems home page (opens in a new tab)"><svg class="mark" viewBox="0 0 120 120" aria-hidden="true"><clipPath id="dsm2"><path d="M22 10 H58 A50 50 0 0 1 58 110 H22 Z"/></clipPath><g clip-path="url(#dsm2)"><rect x="0" y="0" width="62" height="30" fill="#D6B27C"/><rect x="0" y="30" width="62" height="22" fill="#3E5C6B"/><rect x="0" y="52" width="62" height="26" fill="#B4532A"/><rect x="0" y="78" width="62" height="18" fill="#D6B27C"/><rect x="0" y="96" width="62" height="24" fill="#3E5C6B"/><rect x="65" y="-12" width="55" height="30" fill="#D6B27C"/><rect x="65" y="18" width="55" height="22" fill="#3E5C6B"/><rect x="65" y="40" width="55" height="26" fill="#B4532A"/><rect x="65" y="66" width="55" height="18" fill="#D6B27C"/><rect x="65" y="84" width="55" height="24" fill="#3E5C6B"/><rect x="65" y="108" width="55" height="12" fill="#D6B27C"/></g></svg>Dougalien Systems</a><span>The Care Gap · data from published sources, cited on the page</span></footer>
 
 <script>
 // Published helper ratio (AARP PPI 2013). Only these years exist; nothing is interpolated.
@@ -332,8 +343,6 @@ document.addEventListener("click", e => {
     markPreset(); compute();
   }
 });
-matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderRatio);
-new MutationObserver(renderRatio).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
 renderStatic();
 renderLevers();
