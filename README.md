@@ -6,6 +6,8 @@ An interactive page about the U.S. care maintenance gap. It shows how many peopl
 
 A [Dougalien Systems](https://dougalien.com) app. It accompanies the manuscript *When the Supports Run Out: Below-Replacement Fertility, the Falling Helper Ratio, and the U.S. Care Maintenance Gap* (Douglas E. Allen).
 
+**Live app:** https://care-gap.streamlit.app/
+
 ## Run it
 
 **Streamlit app (main version).** On Windows, double-click `run.bat`. Anywhere else:
