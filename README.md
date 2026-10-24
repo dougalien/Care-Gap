@@ -2,7 +2,7 @@
 
 # The Care Gap
 
-An interactive page about the U.S. care maintenance gap. It shows how many people aged 45 to 64 there are for each person aged 80 and over, and lets you test ways the gap could be handled: immigration, a bigger paid care workforce, healthier aging, and robots and AI.
+An interactive page about the U.S. care maintenance gap. It shows how many people aged 45 to 64 there are for each person aged 80 and over, and lets you pick the nation or any state, see why a growing population can still have a care gap, and test ways the gap could be handled: immigration, a bigger paid care workforce, healthier aging, and robots and AI.
 
 A [Dougalien Systems](https://dougalien.com) app. It accompanies the manuscript *When the Supports Run Out: Below-Replacement Fertility, the Falling Helper Ratio, and the U.S. Care Maintenance Gap* (Douglas E. Allen).
 
@@ -42,7 +42,8 @@ Slider positions and scenarios are assumptions to test. They are not forecasts.
 
 Every fixed number on the page comes from a published source:
 
-- Helper ratio (6.6 in 1990, 7.2 in 2010, 4.1 in 2030, 2.9 in 2050): Redfoot, Feinberg & Houser, *The Aging of the Baby Boom and the Growing Care Gap*, AARP Public Policy Institute, 2013.
+- Helper ratio (6.6 in 1990, 7.2 in 2010, 4.1 in 2030, 2.9 in 2050), and the same ratio for every state and D.C. (Appendix B): Redfoot, Feinberg & Houser, *The Aging of the Baby Boom and the Growing Care Gap*, AARP Public Policy Institute, 2013. AARP advises against comparing states for 2030 or 2050, so the app measures each state against its own 2010 level.
+- U.S. population by immigration scenario (peak 370 million in 2080; 435, 366, 319 and 226 million in 2100): U.S. Census Bureau, 2023 National Population Projections. 341.8 million in July 2025 and the states that grew fastest or shrank in 2025: Census release CB26-20. State growth through 2050: Weldon Cooper Center, July 2024.
 - Final 2024 total fertility rate, 1,599.5 per 1,000 women: NCHS, *Births: Final Data for 2024*, NVSR 75(2), 2026.
 - Net international migration down 53.8% to 1.3 million: U.S. Census Bureau, release CB26-20, January 2026.
 - Deaths exceed births from 2031: CBO, *An Update to the Demographic Outlook, 2025 to 2055*, September 2025.
