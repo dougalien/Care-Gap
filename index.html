@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Care Gap</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one narrow column; the simulator is the main panel, with the sliders on the left and the result on the right at desktop width. */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --ink:#18221f; --muted:#5b6a65; --line:#d8dfdc;
+  --accent:#1d6b5f; --accent-soft:#d9ebe7; --gap:#c7782a; --gap-soft:#f4e3d1;
+  --l-imm:#2f6fa8; --l-care:#1d6b5f; --l-health:#7a5aa6; --l-tech:#8a8f3a;
+  --display:"Source Serif 4", Georgia, serif;
+  --body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121816; --surface:#1a2220; --ink:#e6ece9; --muted:#9aa9a4; --line:#2c3633;
+  --accent:#5fb8a8; --accent-soft:#1f3a35; --gap:#e39a52; --gap-soft:#3a2a1b;
+  --l-imm:#6aa6dc; --l-care:#5fb8a8; --l-health:#a98bd4; --l-tech:#bcc26a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121816; --surface:#1a2220; --ink:#e6ece9; --muted:#9aa9a4; --line:#2c3633;
+  --accent:#5fb8a8; --accent-soft:#1f3a35; --gap:#e39a52; --gap-soft:#3a2a1b;
+  --l-imm:#6aa6dc; --l-care:#5fb8a8; --l-health:#a98bd4; --l-tech:#bcc26a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:980px;margin:0 auto;padding-block:28px 56px;display:grid;gap:36px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:2.3rem}
+h2{font-size:1.45rem}
+p{margin:0}
+.lead{color:var(--muted);max-width:62ch;margin-top:8px}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+section{display:grid;gap:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+
+/* Ratio */
+.ratio{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:24px;align-items:center}
+.big{font-family:var(--mono);font-size:3.4rem;line-height:1}
+.people{display:flex;flex-wrap:wrap;gap:4px;align-items:flex-end;margin:12px 0 6px}
+svg text{fill:var(--muted);font:11px var(--body)}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 .9rem var(--body);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.chip:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Simulator */
+.sim{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.levers{display:grid;gap:18px}
+.lever{display:grid;gap:4px}
+.lever-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.lever-head label{font-weight:600}
+.swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px;vertical-align:baseline}
+.lever small{color:var(--muted);font-size:.82rem;line-height:1.45}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.result{display:grid;gap:16px;align-content:start}
+.verdict{border-radius:8px;padding:14px 16px;background:var(--gap-soft)}
+.verdict.closed{background:var(--accent-soft)}
+.verdict .big{font-size:2.6rem}
+.bar{display:flex;height:30px;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:var(--gap-soft)}
+.bar span{display:block;height:100%;transition:width .25s}
+.legend{display:grid;gap:6px;font-size:.88rem}
+.legend div{display:flex;justify-content:space-between;gap:12px}
+.absorb{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.absorb div{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.absorb b{display:block;font-family:var(--mono);font-size:1.4rem;font-weight:500}
+.absorb span{font-size:.82rem;color:var(--muted)}
+.ai{border:1px dashed var(--l-tech);border-radius:8px;padding:12px 14px;display:grid;gap:6px}
+.ai p{font-size:.92rem}
+.note{font-size:.82rem;color:var(--muted);max-width:75ch}
+
+/* Facts */
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fact{border-top:2px solid var(--line);padding-top:10px}
+.fact b{font-family:var(--mono);font-size:1.3rem;font-weight:500;display:block}
+.fact .src{font-size:.78rem;color:var(--muted);margin-top:4px}
+
+@media (max-width:760px){.ratio,.sim{grid-template-columns:minmax(0,1fr)}.facts{grid-template-columns:minmax(0,1fr)}h1{font-size:1.9rem}}
+@media (prefers-reduced-motion:reduce){.bar span{transition:none}}
+</style>
+</head>
+<body>
+
+<main>
+<header>
+  <p class="eyebrow">When the Supports Run Out</p>
+  <h1>The care gap</h1>
+  <p class="lead">The number of people in the prime helping years for each person aged 80 and over is falling fast. Choose a scenario or move the sliders to see what it takes to keep care at its 2010 level.</p>
+</header>
+
+<section aria-labelledby="h-ratio">
+  <h2 id="h-ratio">Helpers per person aged 80+</h2>
+  <div class="panel ratio">
+    <div>
+      <div class="chips" id="years" role="group" aria-label="Year"></div>
+      <div class="big num" id="ratioVal" style="margin-top:14px"></div>
+      <div class="people" id="people" aria-hidden="true"></div>
+      <p class="note" id="ratioNote"></p>
+    </div>
+    <svg id="chart" viewBox="0 0 420 200" width="100%" role="img" aria-label="People aged 45 to 64 per person aged 80 and over: 6.6 in 1990, 7.2 in 2010, 4.1 in 2030 projected, 2.9 in 2050 projected"></svg>
+  </div>
+  <p class="note">Source: Redfoot, Feinberg &amp; Houser, <a href="https://www.caregiver.org/uploads/2023/02/baby-boom-and-the-growing-care-gap-insight-AARP-ppi-ltc.pdf" target="_blank" rel="noopener">The Aging of the Baby Boom and the Growing Care Gap</a>, AARP Public Policy Institute, 2013. 2030 and 2050 are projections.</p>
+</section>
+
+<section aria-labelledby="h-sim">
+  <h2 id="h-sim">How could the gap be handled?</h2>
+  <div class="chips" id="presets" role="group" aria-label="Scenarios"></div>
+  <div class="panel sim">
+    <div class="levers" id="levers"></div>
+    <div class="result" aria-live="polite">
+      <div class="verdict" id="verdict"></div>
+      <div>
+        <p class="eyebrow" style="margin-bottom:6px">Share of the gap each choice closes</p>
+        <div class="bar" id="bar"></div>
+        <div class="legend" id="legend" style="margin-top:10px"></div>
+      </div>
+      <div class="ai" id="ai"></div>
+      <div>
+        <p class="eyebrow" style="margin-bottom:6px">Whatever is left lands somewhere</p>
+        <div class="absorb" id="absorb"></div>
+      </div>
+    </div>
+  </div>
+  <p class="note">How it works: the published ratio sets how much more care each helper must give than in 2010. Each slider changes either the number of helpers or the amount of care needed, and the effects multiply. Slider positions and scenarios are assumptions for you to test. They are not forecasts. The links under each slider give the published figure to compare against.</p>
+</section>
+
+<section aria-labelledby="h-why">
+  <h2 id="h-why">Why the old answers are running out</h2>
+  <div class="facts" id="facts"></div>
+</section>
+</main>
+
+<script>
+// Published helper ratio (AARP PPI 2013). Only these years exist; nothing is interpolated.
+const RATIO = [
+  { year: 1990, value: 6.6, projected: false },
+  { year: 2010, value: 7.2, projected: false },
+  { year: 2030, value: 4.1, projected: true },
+  { year: 2050, value: 2.9, projected: true }
+];
+const BASE = 7.2;
+
+const LEVERS = [
+  { id: "imm", color: "--l-imm", label: "More helpers through immigration", min: 0, max: 30, step: 1, unit: "%",
+    desc: v => `${v}% more people aged 45–64 than projected.`,
+    anchor: 'For scale: the foreign born are 19.2% of the labor force (<a href="https://www.bls.gov/news.release/archives/forbrn_05202025.htm" target="_blank" rel="noopener">BLS</a>). Penn Wharton estimates about 3.5 times today\'s immigration would be needed to restore the worker-to-retiree ratio (<a href="https://budgetmodel.wharton.upenn.edu/issues/2024/3/22/us-demographic-projections-with-and-without-immigration" target="_blank" rel="noopener">PWBM</a>).' },
+  { id: "care", color: "--l-care", label: "Bigger paid care workforce", min: 0, max: 100, step: 1, unit: "%",
+    desc: v => `${v}% more of each helper group's work goes to care.`,
+    anchor: 'For scale: BLS projects home health and personal care aides growing 18% by 2035 against 3.5% for all jobs, a 14% rise in their share (<a href="https://www.bls.gov/ooh/healthcare/home-health-aides-and-personal-care-aides.htm" target="_blank" rel="noopener">OOH</a>, <a href="https://www.bls.gov/news.release/archives/ecopro_08272026.htm" target="_blank" rel="noopener">projections</a>). Every care worker added leaves another sector.' },
+  { id: "health", color: "--l-health", label: "Healthier aging", min: 0, max: 40, step: 1, unit: "%",
+    desc: v => `${v}% fewer people aged 80+ need daily help.`,
+    anchor: 'For scale: 52% of Americans turning 65 will need long-term care, for about two years on average (<a href="https://aspe.hhs.gov/basic-report/long-term-services-and-supports-older-americans-risks-and-financing-research-brief" target="_blank" rel="noopener">ASPE</a>).' },
+  { id: "tech", color: "--l-tech", label: "Robots and AI: what they can do", min: 0, max: 60, step: 1, unit: "%",
+    desc: v => `Machines can do ${v}% of care tasks.`,
+    anchor: 'Long-term care need is defined by hands-on help with bathing, dressing and moving (<a href="https://aspe.hhs.gov/basic-report/long-term-services-and-supports-older-americans-risks-and-financing-research-brief" target="_blank" rel="noopener">ASPE</a>). Robots are least developed for this work.' },
+  { id: "trust", color: "--l-tech", label: "Robots and AI: how much is safe to use", min: 0, max: 100, step: 5, unit: "%",
+    desc: v => `${v}% of that capability can be used without close supervision.`,
+    anchor: 'NIST, WHO and OWASP document confabulation, privacy and security risks that keep nominal AI capability from counting as usable capacity (<a href="https://doi.org/10.6028/NIST.AI.600-1" target="_blank" rel="noopener">NIST AI 600-1</a>).' }
+];
+
+const PRESETS = [
+  { name: "Do nothing", v: { imm: 0, care: 0, health: 0, tech: 0, trust: 0 } },
+  { name: "Lean on immigration", v: { imm: 20, care: 0, health: 0, tech: 0, trust: 0 } },
+  { name: "Grow paid care", v: { imm: 0, care: 14, health: 0, tech: 0, trust: 0 } },
+  { name: "Healthier aging", v: { imm: 0, care: 0, health: 20, tech: 0, trust: 0 } },
+  { name: "Bet on technology", v: { imm: 0, care: 0, health: 0, tech: 40, trust: 30 } },
+  { name: "All of the above", v: { imm: 20, care: 14, health: 20, tech: 40, trust: 30 } }
+];
+
+const FACTS = [
+  { big: "1.60", text: "births per woman in 2024, a record low. Replacement is about 2.1.", src: '<a href="https://www.cdc.gov/nchs/data/nvsr/nvsr75/nvsr75-02.pdf" target="_blank" rel="noopener">NCHS, Births: Final Data for 2024</a>' },
+  { big: "−53.8%", text: "drop in net international migration, to 1.3 million, in the year to July 2025.", src: '<a href="https://www.census.gov/newsroom/press-releases/2026/population-growth-slows.html" target="_blank" rel="noopener">U.S. Census Bureau, Jan 2026</a>' },
+  { big: "2031", text: "the year deaths are projected to start exceeding births.", src: '<a href="https://www.cbo.gov/publication/61735" target="_blank" rel="noopener">CBO, Sept 2025</a>' },
+  { big: "83.6%", text: "of people aged 25–54 were in the labor force in 2025, close to the record. There is little room left to rise.", src: '<a href="https://fred.stlouisfed.org/series/LNS11300060" target="_blank" rel="noopener">BLS LNS11300060</a>' },
+  { big: "37%", text: "of all new jobs projected for 2025–2035 are in health care and social assistance, which has about 14% of jobs today.", src: '<a href="https://www.bls.gov/news.release/archives/ecopro_08272026.htm" target="_blank" rel="noopener">BLS Employment Projections</a>' },
+  { big: "48.6%", text: "of labor-force growth from 1996 to 2000 came from foreign-born workers.", src: '<a href="https://www.bls.gov/opub/mlr/2002/05/art1full.pdf" target="_blank" rel="noopener">BLS Monthly Labor Review, 2002</a>' }
+];
+
+let year = 2050;
+let state = { ...PRESETS[0].v };
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const $ = id => document.getElementById(id);
+
+function person(color, size) {
+  return `<svg width="${size}" height="${size * 1.6}" viewBox="0 0 20 32"><circle cx="10" cy="6" r="5" fill="${color}"/><rect x="3" y="13" width="14" height="18" rx="6" fill="${color}"/></svg>`;
+}
+
+function renderRatio() {
+  $("years").innerHTML = RATIO.map(p =>
+    `<button class="chip" data-year="${p.year}" aria-pressed="${p.year === year}">${p.year}${p.projected ? " (proj.)" : ""}</button>`).join("");
+  const p = RATIO.find(r => r.year === year);
+  $("ratioVal").textContent = p.value.toFixed(1);
+  const whole = Math.floor(p.value), part = p.value - whole;
+  let h = person(css("--gap"), 30);
+  for (let i = 0; i < whole; i++) h += person(css("--accent"), 20);
+  if (part > 0.05) h += `<span style="display:inline-block;overflow:hidden;width:${20 * part}px">${person(css("--accent"), 20)}</span>`;
+  $("people").innerHTML = h;
+  $("ratioNote").textContent = year === 2010
+    ? "people aged 45–64 for each person aged 80+. This is the baseline year."
+    : `people aged 45–64 for each person aged 80+. Each would need to give ${(BASE / p.value).toFixed(2)} times the 2010 effort for the same care.`;
+  drawChart();
+}
+
+function drawChart() {
+  const W = 420, H = 200, L = 30, R = 16, T = 18, B = 28, vmax = 8;
+  const X = y => L + (y - 1990) / 60 * (W - L - R);
+  const Y = v => T + (1 - v / vmax) * (H - T - B);
+  let g = "";
+  for (let v = 0; v <= vmax; v += 2)
+    g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${css("--line")}"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`;
+  for (let i = 1; i < RATIO.length; i++) {
+    const a = RATIO[i - 1], b = RATIO[i];
+    g += `<line x1="${X(a.year)}" y1="${Y(a.value)}" x2="${X(b.year)}" y2="${Y(b.value)}" stroke="${css("--accent")}" stroke-width="2.5"${b.projected ? ' stroke-dasharray="6 5"' : ""}/>`;
+  }
+  for (const p of RATIO) {
+    const on = p.year === year;
+    g += `<circle cx="${X(p.year)}" cy="${Y(p.value)}" r="${on ? 7 : 4.5}" fill="${on ? css("--gap") : css("--accent")}" stroke="${css("--surface")}" stroke-width="2"/>` +
+         `<text x="${X(p.year)}" y="${Y(p.value) - 11}" text-anchor="middle">${p.value}</text>` +
+         `<text x="${X(p.year)}" y="${H - 8}" text-anchor="middle">${p.year}</text>`;
+  }
+  $("chart").innerHTML = g;
+}
+
+function renderLevers() {
+  $("levers").innerHTML = LEVERS.map(l => `
+    <div class="lever">
+      <div class="lever-head">
+        <label for="s-${l.id}"><span class="swatch" style="background:var(${l.color})"></span>${l.label}</label>
+        <span class="num" id="v-${l.id}"></span>
+      </div>
+      <input type="range" id="s-${l.id}" min="${l.min}" max="${l.max}" step="${l.step}" value="${state[l.id]}">
+      <small id="d-${l.id}"></small>
+      <small>${l.anchor}</small>
+    </div>`).join("");
+  for (const l of LEVERS) $("s-" + l.id).addEventListener("input", e => { state[l.id] = +e.target.value; markPreset(); compute(); });
+}
+
+function markPreset() {
+  document.querySelectorAll("[data-preset]").forEach(b => {
+    const p = PRESETS[+b.dataset.preset].v;
+    b.setAttribute("aria-pressed", Object.keys(p).every(k => p[k] === state[k]));
+  });
+}
+
+// Coverage = care per person 80+ as a share of the 2010 level.
+// Pressure from the ratio (BASE / R) is divided by each lever's multiplier.
+function model(s, r) {
+  const pressure = BASE / r;
+  const f = {
+    imm: 1 + s.imm / 100,
+    care: 1 + s.care / 100,
+    health: 1 / (1 - s.health / 100),
+    tech: 1 / (1 - (s.tech / 100) * (s.trust / 100))
+  };
+  const coverage = f.imm * f.care * f.health * f.tech / pressure;
+  return { pressure, f, coverage };
+}
+
+function compute() {
+  for (const l of LEVERS) { $("v-" + l.id).textContent = state[l.id] + l.unit; $("d-" + l.id).textContent = l.desc(state[l.id]); }
+  const r = RATIO.find(p => p.year === year).value;
+  const { pressure, f, coverage } = model(state, r);
+  const v = $("verdict");
+
+  if (year <= 2010) {
+    v.className = "verdict closed";
+    v.innerHTML = `<p class="eyebrow">${year}</p><p>No gap to close. Choose 2030 or 2050 above.</p>`;
+    $("bar").innerHTML = ""; $("legend").innerHTML = ""; $("absorb").innerHTML = ""; $("ai").innerHTML = "";
+    return;
+  }
+
+  const closed = coverage >= 0.995;
+  v.className = "verdict" + (closed ? " closed" : "");
+  v.innerHTML = `<p class="eyebrow">Care per person aged 80+ in ${year}, compared with 2010</p>
+    <div class="big num">${Math.round(Math.min(coverage, 9.99) * 100)}%</div>
+    <p>${closed ? "The gap is closed under these assumptions." : `Short by ${Math.round((1 - coverage) * 100)}% of the 2010 level.`}</p>`;
+
+  // Each lever's share of the gap, measured in log terms so the multiplied effects add up.
+  const gap = Math.log(pressure);
+  const parts = [
+    { name: "Immigration", color: "--l-imm", x: Math.log(f.imm) },
+    { name: "Paid care workforce", color: "--l-care", x: Math.log(f.care) },
+    { name: "Healthier aging", color: "--l-health", x: Math.log(f.health) },
+    { name: "Robots and AI", color: "--l-tech", x: Math.log(f.tech) }
+  ];
+  let used = 0, bar = "", legend = "";
+  for (const p of parts) {
+    const share = Math.max(0, Math.min(p.x / gap, 1 - used));
+    used += share;
+    bar += `<span style="width:${share * 100}%;background:var(${p.color})" title="${p.name}"></span>`;
+    legend += `<div><span><span class="swatch" style="background:var(${p.color})"></span>${p.name}</span><span class="num">${Math.round(p.x / gap * 100)}%</span></div>`;
+  }
+  legend += `<div><span><span class="swatch" style="background:var(--gap-soft);outline:1px solid var(--gap)"></span>Still open</span><span class="num">${Math.round(Math.max(0, 1 - used) * 100)}%</span></div>`;
+  $("bar").innerHTML = bar;
+  $("legend").innerHTML = legend;
+
+  // What machines would have to do, safely, to close what the other levers leave open.
+  const withoutTech = f.imm * f.care * f.health / pressure;
+  const needed = Math.max(0, 1 - withoutTech);
+  $("ai").innerHTML = needed === 0
+    ? `<p class="eyebrow">Robots and AI</p><p>The other choices close the gap without them.</p>`
+    : `<p class="eyebrow">What robots and AI would have to do</p>
+       <div class="big num" style="font-size:2rem">${Math.round(needed * 100)}%</div>
+       <p>of all care work in ${year} would have to be done by machines, safely and without close supervision, to close what the other choices leave open. The two technology sliders above set how much they actually do.
+       Today that capacity has not been shown: most of the need is hands-on help with bathing, dressing and moving, and the AI risk standards linked under the sliders say nominal capability should not be counted as usable capacity.</p>`;
+
+  $("absorb").innerHTML = closed
+    ? `<div style="grid-column:1/-1"><b>Nothing left</b><span>No extra load falls on families and no care goes undone.</span></div>`
+    : `<div><b>${(1 / coverage).toFixed(2)}×</b><span>the 2010 effort from each helper, if families make up the difference</span></div>
+       <div><b>${Math.round((1 - coverage) * 100)}%</b><span>of needed care goes undone, if nobody makes it up</span></div>`;
+}
+
+function renderStatic() {
+  $("presets").innerHTML = PRESETS.map((p, i) => `<button class="chip" data-preset="${i}" aria-pressed="${i === 0}">${p.name}</button>`).join("");
+  $("facts").innerHTML = FACTS.map(f => `<div class="fact"><b>${f.big}</b>${f.text}<div class="src">${f.src}</div></div>`).join("");
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.dataset.year) { year = +b.dataset.year; renderRatio(); compute(); }
+  if (b.dataset.preset) {
+    state = { ...PRESETS[+b.dataset.preset].v };
+    for (const l of LEVERS) $("s-" + l.id).value = state[l.id];
+    markPreset(); compute();
+  }
+});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderRatio);
+new MutationObserver(renderRatio).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+renderStatic();
+renderLevers();
+renderRatio();
+compute();
+</script>
+</body>
+</html>
