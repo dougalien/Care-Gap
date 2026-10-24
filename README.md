@@ -8,7 +8,18 @@ A [Dougalien Systems](https://dougalien.com) app. It accompanies the manuscript 
 
 ## Run it
 
-Open `index.html` in any browser. It is one file of plain HTML, CSS and JavaScript, with no build step and no dependencies apart from Google Fonts. It uses the Dougalien Systems palette (sand, slate and rust from the logo) and the Familjen Grotesk display face, matching dougalien.com and the other Dougalien apps; the logo files are in `assets/`. It also works as a GitHub Pages site.
+**Streamlit app (main version).** On Windows, double-click `run.bat`. Anywhere else:
+
+```
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+`model.py` holds the math, `app.py` the page, and `python test_model.py` checks the model. The Dougalien Systems look comes from `dougalien_brand.py` and `.streamlit/config.toml`, the same as the Geo-Tools apps.
+
+To put it online, sign in at [share.streamlit.io](https://share.streamlit.io), choose **Create app**, and pick repository `dougalien/Care-Gap`, branch `main`, main file `app.py`.
+
+**Static page.** `index.html` is the same simulator as one file of plain HTML, CSS and JavaScript. Open it in any browser or serve it with GitHub Pages.
 
 ## How the simulator works
 
