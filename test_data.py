@@ -47,3 +47,22 @@ for year in ("lf_2015", "lf_2025", "lf_2035"):
     assert sum(int(r[year]) for r in t31.values()) == int(lf_total[year]), year
 
 print("data checks passed")
+
+# The sector ledger
+import sectors as sx
+
+assert abs(sum(d["emp_2025"] for d in sx.SECTOR_DATA.values()) - 170280.8) < 1.0
+assert abs(sum(d["openings_per_year"] for d in sx.SECTOR_DATA.values()) - 17461.8) < 2.0
+base = sx.run(keep_pace=False)
+assert base["extra"] == 0 and all(g["taken"] == 0 for g in base["gaps"].values()) and base["worst"] is None
+assert round(sx.GROWTH_80, 3) == 1.553                      # 14,746 to 22,906 thousand
+assert round(sx.extra_care() / 1000, 1) == 3.5             # aides only
+assert round(sx.extra_care(include_clinical=True) / 1000, 1) == 8.4
+pace = sx.run()
+assert abs(sum(g["taken"] for g in pace["gaps"].values()) - pace["extra"]) < 1e-6
+shares = {round(g["share_of_entrants"], 9) for g in pace["gaps"].values()}
+assert len(shares) == 1                                     # proportional draw: every sector loses the same share of its new workers
+assert sx.run(new_supply=1.0)["worst"] is None
+only_construction = sx.run(weights={"construction": 1})
+assert abs(only_construction["gaps"]["construction"]["taken"] - only_construction["extra"]) < 1e-6
+print("sector checks passed")

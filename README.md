@@ -17,7 +17,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-`model.py` holds the math, `app.py` the page, and `python test_model.py` checks the model. The Dougalien Systems look comes from `dougalien_brand.py` and `.streamlit/config.toml`, the same as the Geo-Tools apps.
+`model.py` holds the care math, `sectors.py` the sector ledger, `app.py` the page. `python test_model.py` and `python test_data.py` check the model and the published tables in `data/` (sources in `data/SOURCES.md`). The Dougalien Systems look comes from `dougalien_brand.py` and `.streamlit/config.toml`, the same as the Geo-Tools apps.
 
 To put it online, sign in at [share.streamlit.io](https://share.streamlit.io), choose **Create app**, and pick repository `dougalien/Care-Gap`, branch `main`, main file `app.py`.
 

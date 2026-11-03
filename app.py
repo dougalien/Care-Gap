@@ -8,10 +8,12 @@ in model.py; every fixed number is from a published source.
 Run: streamlit run app.py
 """
 
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
 import dougalien_brand as brand
+import sectors as sx
 from model import (DECLINING_TO_2050, FASTEST_TO_2050, GREW_FASTEST_2025, LOST_2025, PLACES, POP_2025,
                    POP_2100, POP_PEAK, PRESETS, PROJECTED, RATIO, run)
 
@@ -102,8 +104,9 @@ st.markdown(
     "This app shows the published fall in potential family helpers and lets you test the ways the gap could be handled."
 )
 
-tab_gap, tab_pop, tab_why, tab_method = st.tabs(
-    ["The gap", "Isn't the population still growing?", "Why the old answers are running out", "Method and sources"])
+tab_gap, tab_sectors, tab_pop, tab_why, tab_method = st.tabs(
+    ["The gap", "Where the workers come from", "Isn't the population still growing?",
+     "Why the old answers are running out", "Method and sources"])
 
 with tab_gap:
     left, right = st.columns([1, 1.15], gap="large")
@@ -198,6 +201,100 @@ with tab_gap:
                 )
     st.caption("Slider positions and scenarios are assumptions to test. They are not forecasts.")
 
+with tab_sectors:
+    st.subheader("Where the workers come from")
+    st.markdown(
+        "Care, construction, repair, transportation, schools and every other sector hire from the same pool of "
+        "workers. In the official BLS projection to 2035 every sector's openings get filled, so there is no gap. "
+        "A gap opens when care has to keep pace with the number of people aged 80+, because those extra care "
+        "workers must come from somewhere: added supply, or the new workers other sectors were counting on. "
+        "National figures only, 2025 to 2035."
+    )
+    ctl, out = st.columns([1, 1.6], gap="large")
+    with ctl:
+        pace = st.radio("Care workers in 2035", ["Keep pace with the 80+ population", "BLS projection"],
+                        help="Keep pace: care workers per person aged 80+ stay at the 2025 level.")
+        keep_pace = pace.startswith("Keep")
+        clinical = st.checkbox("Nurses and clinicians keep pace too", value=False, disabled=not keep_pace,
+                               help="Off by default: clinical staff serve every age, not only people 80+.")
+        new_supply = st.slider("Share of the extra care workers from new supply (%)", 0, 100, 0, 5,
+                               help="More immigration or more people working than BLS projects. An assumption to test.")
+        st.caption("For scale: the foreign born are 19.2% of the labor force "
+                   "([BLS](https://www.bls.gov/news.release/archives/forbrn_05202025.htm)), and net international "
+                   "migration fell to 1.3 million in the year to July 2025 "
+                   "([Census](https://www.census.gov/newsroom/press-releases/2026/population-growth-slows.html)).")
+        with st.expander("Change which sectors give up workers"):
+            st.caption("By default each sector gives up workers in proportion to the new workers it needs. "
+                       "Set a sector to 0 to protect it. Shares are rescaled to add up to 100%.")
+            dw = sx.default_weights()
+            edited = st.data_editor(
+                pd.DataFrame({"Sector": [sx.SECTORS[k][0] for k in sx.DONORS],
+                              "Share (%)": [round(dw[k] * 100, 1) for k in sx.DONORS]}),
+                hide_index=True, disabled=["Sector"], width="stretch", key="draw_shares",
+                column_config={"Share (%)": st.column_config.NumberColumn(min_value=0.0, max_value=100.0, step=0.5)})
+            weights = {k: float(v or 0) for k, v in zip(sx.DONORS, edited["Share (%)"])}
+            if sum(weights.values()) <= 0:
+                st.warning("Every sector is protected, so all extra care workers must come from new supply.")
+    if sum(weights.values()) <= 0:
+        new_supply = 100
+    ledger = sx.run(keep_pace, clinical, new_supply / 100, weights)
+
+    with out:
+        c1, c2, c3 = st.columns(3)
+        c1.metric("People aged 80+ in 2035", f"{sx.POP80[2035] / 1000:.1f}M",
+                  delta=f"+{sx.GROWTH_80 - 1:.0%} from {sx.POP80[2025] / 1000:.1f}M in 2025", delta_color="off")
+        c2.metric("Extra care workers", f"{ledger['extra'] / 1000:.1f}M",
+                  help="Care workers needed in 2035 above the BLS projection.")
+        c3.metric("Taken from other sectors", f"{ledger['draw'] / 1000:.1f}M",
+                  help=f"The rest, {ledger['supply'] / 1000:.1f} million, is new supply: "
+                       f"{ledger['supply_share_of_lf']:.1%} of the 2035 labor force.")
+
+        order = [k for k in sx.DONORS]
+        gap = go.Figure()
+        gap.add_bar(x=[ledger["gaps"][k]["share_of_jobs"] for k in order], y=[sx.SECTORS[k][0] for k in order],
+                    orientation="h",
+                    marker_color=[brand.RUST if k == ledger["worst"] else brand.SLATE for k in order],
+                    text=[f"{ledger['gaps'][k]['share_of_jobs']:.1%}" for k in order], textposition="outside",
+                    customdata=[[ledger["gaps"][k]["taken"], ledger["gaps"][k]["share_of_entrants"]] for k in order],
+                    hovertemplate="%{y}: %{customdata[0]:,.0f} thousand workers short, %{x:.1%} of its 2035 jobs, "
+                                  "%{customdata[1]:.0%} of the new workers it needed<extra></extra>")
+        top = max([g["share_of_jobs"] for g in ledger["gaps"].values()] + [0.01])
+        gap.update_layout(height=340, margin=dict(l=10, r=40, t=40, b=10), paper_bgcolor=brand.PAPER,
+                          plot_bgcolor=brand.SHEET, showlegend=False,
+                          title=dict(text="Jobs left unfilled in 2035, as a share of each sector's jobs", font=dict(size=14)))
+        gap.update_xaxes(range=[0, top * 1.25], tickformat=".0%", gridcolor=brand.RULE)
+        gap.update_yaxes(autorange="reversed")
+        st.plotly_chart(gap, width="stretch", config=PLOT_CFG)
+        if ledger["worst"] is None:
+            st.success("No sector is short: every opening in the BLS projection is filled.")
+        else:
+            w = ledger["gaps"][ledger["worst"]]
+            st.write(f"Hardest hit: **{sx.SECTORS[ledger['worst']][0].lower()}**, short {w['taken']:,.0f} thousand "
+                     f"workers, {w['share_of_jobs']:.1%} of its 2035 jobs. Sectors that lose many workers to "
+                     "retirement each year need more new workers, so a proportional draw takes more from them.")
+
+    st.markdown("#### New workers each sector needs, 2025 to 2035")
+    keys = list(sx.SECTORS)
+    need = go.Figure()
+    need.add_bar(x=[sx.SECTOR_DATA[k]["entrants"] / 1000 for k in keys], y=[sx.SECTORS[k][0] for k in keys],
+                 orientation="h", marker_color=[brand.RUST if k in sx.CARE else brand.SLATE for k in keys],
+                 text=[f"{sx.SECTOR_DATA[k]['entrants'] / 1000:.1f}M" for k in keys], textposition="outside",
+                 hovertemplate="%{y}: %{x:.1f} million new workers<extra></extra>")
+    need.update_layout(height=360, margin=dict(l=10, r=40, t=10, b=10), paper_bgcolor=brand.PAPER,
+                       plot_bgcolor=brand.SHEET, showlegend=False)
+    need.update_xaxes(title="Millions of new workers (growth plus replacing those who leave the labor force)",
+                      gridcolor=brand.RULE)
+    need.update_yaxes(autorange="reversed")
+    st.plotly_chart(need, width="stretch", config=PLOT_CFG)
+    st.caption("This is the BLS baseline, with no scenario. Shrinking sectors such as manufacturing and agriculture "
+               "still need new workers to replace those who retire. Workers who switch occupations are not counted, "
+               "because they move inside the same pool.")
+    st.caption("Sources: BLS Employment Projections 2025–35, [Table 1.10]"
+               "(https://www.bls.gov/emp/tables/occupational-separations-and-openings.htm) and [Table 3.1]"
+               "(https://www.bls.gov/emp/tables/civilian-labor-force-summary.htm); U.S. Census Bureau, 2023 National "
+               "Population Projections, [Table 3](https://www.census.gov/data/tables/2023/demo/popproj/2023-summary-tables.html). "
+               "Sectors are BLS major occupation groups. The draw rule and the new-supply share are assumptions to test.")
+
 with tab_pop:
     st.subheader("Isn't the population still growing?")
     st.markdown(
@@ -290,6 +387,21 @@ Scenario settings: immigration 20%; paid care 14% (BLS aides +18% against all jo
 technology 40% capability at 30% safe use; "All of the above" combines them.
 """
     )
+    st.subheader("Where the workers come from")
+    st.markdown(
+        """
+Each sector is a BLS major occupation group, or several. Over 2025 to 2035 a sector needs new workers equal to its
+employment change plus ten years of labor force exits, both from BLS Table 1.10. Workers who switch occupations
+are not counted, since they move inside the same pool.
+
+In the BLS projection every sector's openings are filled, so the baseline has no gap. With "keep pace", care workers
+per person aged 80+ stay at the 2025 level: 2025 employment times the Census growth in the 80+ population
+(14.7 to 22.9 million, ×1.55). The amount above the BLS 2035 projection is the extra need: about 3.5 million for aides
+alone, 8.4 million if nurses and clinicians are included. Part of it can come from new supply (a slider); the rest is
+taken from the other sectors, in proportion to the new workers each needs unless you change the shares. A sector's
+gap is what it loses as a share of its 2035 jobs. There is no combined index, because no published weights exist to build one.
+"""
+    )
     st.subheader("Sources")
     st.markdown(
         """
@@ -303,6 +415,8 @@ technology 40% capability at 30% safe use; "All of the above" combines them.
 - Prime-age participation 83.6%: BLS series LNS11300060.
 - Foreign born 19.2% of the labor force (2024): BLS, *Foreign-Born Workers*, May 2025. 48.6% of labor-force growth 1996–2000: Mosisa, *Monthly Labor Review*, May 2002.
 - Health care and social assistance 37% of new jobs 2025–2035: BLS Employment Projections, August 2026. Home health and personal care aides +18%: BLS *Occupational Outlook Handbook*.
+- Employment, labor force exits and openings by occupation group, 2025–2035: BLS Employment Projections, Tables 1.1 and 1.10 (August 2026). Civilian labor force 2035: Table 3.1.
+- Population aged 80+ in 2025 and 2035 (main series): U.S. Census Bureau, 2023 National Population Projections, Table 3.
 - 52% of people turning 65 will need long-term care: Favreault & Dey, ASPE, 2016.
 - Immigration about 3.5 times the current rate to restore the worker-to-retiree ratio: Gokhale, Penn Wharton Budget Model, 2024.
 - AI risk categories: NIST AI 600-1 (2024), WHO guidance on large multimodal models (2024), OWASP Top 10 for LLM Applications 2025.
