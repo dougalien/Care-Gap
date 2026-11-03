@@ -24,7 +24,21 @@ for r in t11.values():
 t110 = rows("bls_ep_table_1_10.csv")
 for soc, r in t110.items():
     ref = total if soc == "00-0000" else t11[soc]
-    assert r["emp_2025"] == ref["emp_2025"] and r["emp_2035"] == ref["emp_2035"], soc
+    assert all(float(r[y]) == float(ref[y]) for y in ("emp_2025", "emp_2035")), soc
+
+# Openings = growth per year + exits + transfers (BLS definition), for every group
+for soc, r in t110.items():
+    growth = (float(r["emp_2035"]) - float(r["emp_2025"])) / 10
+    parts = growth + float(r["exits_per_year"]) + float(r["transfers_per_year"])
+    assert abs(parts - float(r["openings_per_year"])) < 0.5, (soc, parts)
+assert len(t110) == 23   # total + 22 major groups
+assert abs(sum(float(r["openings_per_year"]) for s, r in t110.items() if s != "00-0000")
+           - float(t110["00-0000"]["openings_per_year"])) < 2.0
+
+# Census 80+ is the sum of its five age bands
+for r in csv.DictReader(open(DATA / "census_np2023_t3_80plus.csv", newline="")):
+    bands = sum(int(r[k]) for k in ("age_80_84", "age_85_89", "age_90_94", "age_95_99", "age_100_plus"))
+    assert bands == int(r["age_80_plus"]), r["year"]
 
 # Labor force age groups add to the total
 t31 = rows("bls_ep_table_3_1.csv")
