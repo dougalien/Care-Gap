@@ -1,0 +1,24 @@
+soc,group,emp_2025,emp_2035,change,change_pct,median_wage_2025
+00-0000,"Total, all occupations",170280.8,176198.5,5917.6,3.5,50980
+11-0000,Management,13683.4,14527.6,844.2,6.2,126520
+13-0000,Business and financial operations,11368.5,11997.1,628.6,5.5,82660
+15-0000,Computer and mathematical,5493.6,5896.7,403.1,7.3,109280
+17-0000,Architecture and engineering,2690.0,2872.5,182.4,6.8,99520
+19-0000,"Life, physical, and social science",1628.7,1751.5,122.9,7.5,82530
+21-0000,Community and social service,3270.1,3513.0,242.9,7.4,58300
+23-0000,Legal,1445.7,1488.0,42.2,2.9,102500
+25-0000,Educational instruction and library,9907.4,10049.4,142.0,1.4,60570
+27-0000,"Arts, design, entertainment, sports, and media",2986.0,3030.6,44.6,1.5,62750
+29-0000,Healthcare practitioners and technical,10232.8,11052.4,819.5,8.0,86530
+31-0000,Healthcare support,8421.5,9544.2,1122.7,13.3,38340
+33-0000,Protective service,3871.0,3915.2,44.2,1.1,50080
+35-0000,Food preparation and serving related,13826.5,14429.1,602.5,4.4,35050
+37-0000,Building and grounds cleaning and maintenance,5699.6,5845.2,145.6,2.6,37680
+39-0000,Personal care and service,4487.3,4685.5,198.2,4.4,36410
+41-0000,Sales and related,14533.2,14326.4,-206.8,-1.4,38530
+43-0000,Office and administrative support,18792.7,18040.5,-752.1,-4.0,47450
+45-0000,"Farming, fishing, and forestry",1036.0,1020.6,-15.4,-1.5,36630
+47-0000,Construction and extraction,7492.9,7878.5,385.7,5.1,59540
+49-0000,"Installation, maintenance, and repair",6494.4,6847.1,352.7,5.4,59620
+51-0000,Production,8780.5,8747.1,-33.5,-0.4,46990
+53-0000,Transportation and material moving,14139.0,14740.4,601.4,4.3,44350
