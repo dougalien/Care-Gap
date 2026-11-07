@@ -98,11 +98,8 @@ r = run(s, year, place)
 ratio = PLACES[place]
 where = "" if place == "United States" else f" in {'the ' if place.startswith('District') else ''}{place}"
 
-st.title("The Care Gap")
-st.markdown(
-    "Fewer births and longer lives mean fewer people of working age for each American who needs daily care. "
-    "This app shows the published fall in potential family helpers and lets you test the ways the gap could be handled."
-)
+brand.app_header("The Care Gap", "Fewer births and longer lives mean fewer working-age helpers for each American who "
+                                 "needs daily care. See how big that gap gets, and test ways it could be handled.")
 
 tab_gap, tab_sectors, tab_pop, tab_why, tab_method = st.tabs(
     ["The gap", "Where the workers come from", "Isn't the population still growing?",
