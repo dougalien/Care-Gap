@@ -17,6 +17,9 @@ import sectors as sx
 from model import (DECLINING_TO_2050, FASTEST_TO_2050, GREW_FASTEST_2025, LOST_2025, PLACES, POP_2025,
                    POP_2100, POP_PEAK, PRESETS, PROJECTED, RATIO, run)
 
+__version__ = "0.1.0"
+FEEDBACK_URL = "https://github.com/dougalien/Care-Gap/issues"
+
 PLOT_CFG = {"displaylogo": False, "toImageButtonOptions": {"format": "png", "scale": 3}}
 COLORS = {"imm": brand.SLATE, "care": brand.RUST, "health": brand.SAND, "tech": brand.CAPTION}
 NAMES = {"imm": "Immigration", "care": "Paid care workforce", "health": "Healthier aging", "tech": "Robots and AI"}
@@ -111,7 +114,9 @@ with tab_gap:
     with left:
         st.subheader("The helper ratio")
         st.metric(f"People aged 45–64 per person aged 80+{where}, {year}", f"{ratio[year]:.1f}",
-                  delta=None if year == 2010 else f"{ratio[year] - ratio[2010]:+.1f} vs 2010", delta_color="normal")
+                  delta=None if year == 2010 else f"{ratio[year] - ratio[2010]:+.1f} vs 2010".replace("-", "−"),
+                  delta_color="red" if ratio[year] < ratio[2010] else "normal",
+                  delta_arrow="down" if ratio[year] < ratio[2010] else "auto")
         years = list(RATIO)
         fig = go.Figure()
         if place != "United States":
@@ -155,8 +160,8 @@ with tab_gap:
             closed = r["coverage"] >= 0.995
             st.metric(f"Care per person aged 80+{where} in {year}, compared with 2010",
                       f"{min(r['coverage'], 9.99):.0%}",
-                      delta="Gap closed" if closed else f"-{r['unmet']:.0%}: short of the 2010 level",
-                      delta_color="normal")
+                      delta="Gap closed" if closed else f"−{r['unmet']:.0%}: short of the 2010 level",
+                      delta_color="normal" if closed else "red", delta_arrow="auto" if closed else "down")
 
             # Each choice's share of the gap, stacked to 100%
             bar = go.Figure()
@@ -173,6 +178,9 @@ with tab_gap:
                               paper_bgcolor=brand.PAPER, plot_bgcolor=brand.PAPER,
                               title=dict(text="Share of the gap each choice closes", font=dict(size=14)),
                               legend=dict(orientation="h", y=-0.05, traceorder="normal"))
+            if used < 0.005:
+                bar.add_annotation(x=0.5, y=0, text="Nothing closed yet. Pick a scenario or move a slider.",
+                                   showarrow=False, font=dict(color=brand.CAPTION, size=13))
             bar.update_xaxes(range=[0, 1], visible=False)
             bar.update_yaxes(visible=False)
             st.plotly_chart(bar, width="stretch", config=PLOT_CFG)
@@ -240,10 +248,11 @@ with tab_sectors:
     with out:
         c1, c2, c3 = st.columns(3)
         c1.metric("People aged 80+ in 2035", f"{sx.POP80[2035] / 1000:.1f}M",
-                  delta=f"+{sx.GROWTH_80 - 1:.0%} from {sx.POP80[2025] / 1000:.1f}M in 2025", delta_color="off")
+                  delta=f"+{sx.GROWTH_80 - 1:.0%} since 2025", delta_color="off",
+                  help=f"{sx.POP80[2025] / 1000:.1f} million in 2025.")
         c2.metric("Extra care workers", f"{ledger['extra'] / 1000:.1f}M",
                   help="Care workers needed in 2035 above the BLS projection.")
-        c3.metric("Taken from other sectors", f"{ledger['draw'] / 1000:.1f}M",
+        c3.metric("From other sectors", f"{ledger['draw'] / 1000:.1f}M",
                   help=f"The rest, {ledger['supply'] / 1000:.1f} million, is new supply: "
                        f"{ledger['supply_share_of_lf']:.1%} of the 2035 labor force.")
 
@@ -280,11 +289,12 @@ with tab_sectors:
                  hovertemplate="%{y}: %{x:.1f} million new workers<extra></extra>")
     need.update_layout(height=360, margin=dict(l=10, r=40, t=10, b=10), paper_bgcolor=brand.PAPER,
                        plot_bgcolor=brand.SHEET, showlegend=False)
-    need.update_xaxes(title="Millions of new workers (growth plus replacing those who leave the labor force)",
-                      gridcolor=brand.RULE)
+    top_need = max(sx.SECTOR_DATA[k]["entrants"] for k in keys) / 1000
+    need.update_xaxes(title="Millions of new workers", range=[0, top_need * 1.35], gridcolor=brand.RULE)
     need.update_yaxes(autorange="reversed")
     st.plotly_chart(need, width="stretch", config=PLOT_CFG)
-    st.caption("This is the BLS baseline, with no scenario. Shrinking sectors such as manufacturing and agriculture "
+    st.caption("New workers means growth plus replacing those who leave the labor force. "
+               "This is the BLS baseline, with no scenario. Shrinking sectors such as manufacturing and agriculture "
                "still need new workers to replace those who retire. Workers who switch occupations are not counted, "
                "because they move inside the same pool.")
     st.caption("Sources: BLS Employment Projections 2025–35, [Table 1.10]"
@@ -307,17 +317,17 @@ with tab_pop:
               delta=f"in {POP_PEAK['Middle series'][0]}", delta_color="off")
     c3.metric("People 65+ outnumber children", "2029", help="Middle series: the 65+ group passes the under-18 group.")
 
+    st.markdown(f"**U.S. population in 2100 by immigration scenario** (dashed line: {POP_2025} million in 2025)")
     pop = go.Figure()
     names = list(POP_2100)
     pop.add_bar(x=[POP_2100[n] for n in names], y=names, orientation="h",
                 marker_color=[brand.SLATE if n == "Middle series" else brand.SAND for n in names],
-                text=[f"{POP_2100[n]} million" for n in names], textposition="outside",
+                text=[f"{POP_2100[n]} million" for n in names], textposition="inside", insidetextanchor="start",
+                textfont=dict(color=[brand.SHEET if n == "Middle series" else brand.INK for n in names]),
                 hovertemplate="%{y}: %{x} million in 2100<extra></extra>")
-    pop.add_vline(x=POP_2025, line=dict(color=brand.RUST, width=2, dash="dash"),
-                  annotation_text=f"2025: {POP_2025} million", annotation_position="top")
-    pop.update_layout(height=280, margin=dict(l=10, r=40, t=40, b=10), paper_bgcolor=brand.PAPER,
-                      plot_bgcolor=brand.SHEET,
-                      title=dict(text="U.S. population in 2100 by immigration scenario", font=dict(size=14)))
+    pop.add_vline(x=POP_2025, line=dict(color=brand.RUST, width=2, dash="dash"))
+    pop.update_layout(height=280, margin=dict(l=10, r=20, t=10, b=10), paper_bgcolor=brand.PAPER,
+                      plot_bgcolor=brand.SHEET)
     pop.update_xaxes(range=[0, 500], title="Millions", gridcolor=brand.RULE)
     pop.update_yaxes(autorange="reversed")
     st.plotly_chart(pop, width="stretch", config=PLOT_CFG)
@@ -354,12 +364,17 @@ with tab_pop:
 
 with tab_why:
     st.subheader("Why the old answers are running out")
-    cols = st.columns(3)
-    for i, (big, text, src) in enumerate(FACTS):
-        with cols[i % 3].container(border=True):
-            st.markdown(f"### {big}")
-            st.write(text)
-            st.caption(src)
+    # Cards in the same row fill the row's height
+    st.markdown("<style>[data-testid='stColumn']:has([class*='st-key-fact_']) > [data-testid='stVerticalBlock'],"
+                "[data-testid='stLayoutWrapper']:has(> [class*='st-key-fact_']),"
+                "[class*='st-key-fact_'] {height: 100%;}</style>", unsafe_allow_html=True)
+    for row in range(0, len(FACTS), 3):
+        cols = st.columns(3)
+        for i, (big, text, src) in enumerate(FACTS[row:row + 3]):
+            with cols[i].container(border=True, key=f"fact_{row + i}"):
+                st.markdown(f"### {big}")
+                st.write(text)
+                st.caption(src)
 
 with tab_method:
     st.subheader("How the simulator works")
@@ -421,3 +436,5 @@ gap is what it loses as a share of its 2035 jobs. There is no combined index, be
 """
     )
     st.caption("Accompanies *When the Supports Run Out* (Douglas E. Allen). A [Dougalien Systems](https://dougalien.com) app.")
+
+st.caption(f"The Care Gap {__version__} · beta · [Report a problem]({FEEDBACK_URL})")
