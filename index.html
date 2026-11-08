@@ -75,6 +75,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .verdict .big{font-size:2.6rem}
 .bar{display:flex;height:30px;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:var(--gap-soft)}
 .bar span{display:block;height:100%;transition:width .25s}
+.bar .empty{flex:1;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--muted)}
 .legend{display:grid;gap:6px;font-size:.88rem}
 .legend div{display:flex;justify-content:space-between;gap:12px}
 .absorb{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -146,7 +147,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   <div class="facts" id="facts"></div>
 </section>
 </main>
-<footer><a class="lockup" href="https://dougalien.com" target="_blank" rel="noopener" aria-label="Dougalien Systems home page (opens in a new tab)"><svg class="mark" viewBox="0 0 120 120" aria-hidden="true"><clipPath id="dsm2"><path d="M22 10 H58 A50 50 0 0 1 58 110 H22 Z"/></clipPath><g clip-path="url(#dsm2)"><rect x="0" y="0" width="62" height="30" fill="#D6B27C"/><rect x="0" y="30" width="62" height="22" fill="#3E5C6B"/><rect x="0" y="52" width="62" height="26" fill="#B4532A"/><rect x="0" y="78" width="62" height="18" fill="#D6B27C"/><rect x="0" y="96" width="62" height="24" fill="#3E5C6B"/><rect x="65" y="-12" width="55" height="30" fill="#D6B27C"/><rect x="65" y="18" width="55" height="22" fill="#3E5C6B"/><rect x="65" y="40" width="55" height="26" fill="#B4532A"/><rect x="65" y="66" width="55" height="18" fill="#D6B27C"/><rect x="65" y="84" width="55" height="24" fill="#3E5C6B"/><rect x="65" y="108" width="55" height="12" fill="#D6B27C"/></g></svg>Dougalien Systems</a><span>The Care Gap · data from published sources, cited on the page</span></footer>
+<footer><a class="lockup" href="https://dougalien.com" target="_blank" rel="noopener" aria-label="Dougalien Systems home page (opens in a new tab)"><svg class="mark" viewBox="0 0 120 120" aria-hidden="true"><clipPath id="dsm2"><path d="M22 10 H58 A50 50 0 0 1 58 110 H22 Z"/></clipPath><g clip-path="url(#dsm2)"><rect x="0" y="0" width="62" height="30" fill="#D6B27C"/><rect x="0" y="30" width="62" height="22" fill="#3E5C6B"/><rect x="0" y="52" width="62" height="26" fill="#B4532A"/><rect x="0" y="78" width="62" height="18" fill="#D6B27C"/><rect x="0" y="96" width="62" height="24" fill="#3E5C6B"/><rect x="65" y="-12" width="55" height="30" fill="#D6B27C"/><rect x="65" y="18" width="55" height="22" fill="#3E5C6B"/><rect x="65" y="40" width="55" height="26" fill="#B4532A"/><rect x="65" y="66" width="55" height="18" fill="#D6B27C"/><rect x="65" y="84" width="55" height="24" fill="#3E5C6B"/><rect x="65" y="108" width="55" height="12" fill="#D6B27C"/></g></svg>Dougalien Systems</a><span>The Care Gap 0.1.0 · beta · <a href="https://github.com/dougalien/Care-Gap/issues" target="_blank" rel="noopener">Report a problem</a> · data from published sources, cited on the page</span></footer>
 
 <script>
 // Published helper ratio (AARP PPI 2013). Only these years exist; nothing is interpolated.
@@ -309,6 +310,7 @@ function compute() {
     legend += `<div><span><span class="swatch" style="background:var(${p.color})"></span>${p.name}</span><span class="num">${Math.round(p.x / gap * 100)}%</span></div>`;
   }
   legend += `<div><span><span class="swatch" style="background:var(--gap-soft);outline:1px solid var(--gap)"></span>Still open</span><span class="num">${Math.round(Math.max(0, 1 - used) * 100)}%</span></div>`;
+  if (used < 0.005) bar = `<div class="empty">Nothing closed yet. Pick a scenario or move a slider.</div>`;
   $("bar").innerHTML = bar;
   $("legend").innerHTML = legend;
 
