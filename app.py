@@ -141,7 +141,8 @@ with tab_gap:
                        f"for the same care per person aged 80+{where}.")
         st.caption("Source: Redfoot, Feinberg & Houser, *The Aging of the Baby Boom and the Growing Care Gap*, "
                    "AARP Public Policy Institute, 2013 ([PDF](https://www.caregiver.org/uploads/2023/02/"
-                   "baby-boom-and-the-growing-care-gap-insight-AARP-ppi-ltc.pdf)). Only these four years are published.")
+                   "baby-boom-and-the-growing-care-gap-insight-AARP-ppi-ltc.pdf)). Only these four years are published. "
+                   "The report calls this the caregiver support ratio, and the care gap idea is theirs.")
         if place != "United States":
             st.caption("State figures are from the report's Appendix B. AARP advises against comparing states "
                        "for 2030 or 2050, so each state is measured against its own 2010 level.")

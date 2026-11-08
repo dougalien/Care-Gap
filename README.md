@@ -25,7 +25,7 @@ To put it online, sign in at [share.streamlit.io](https://share.streamlit.io), c
 
 ## How the simulator works
 
-The published helper ratio sets the pressure: each potential helper would need to give `7.2 / ratio` times the 2010 effort to provide the same care per person aged 80+ (1.76 times in 2030, 2.48 times in 2050).
+The published helper ratio (AARP's caregiver support ratio, Redfoot, Feinberg & Houser 2013) sets the pressure: each potential helper would need to give `7.2 / ratio` times the 2010 effort to provide the same care per person aged 80+ (1.76 times in 2030, 2.48 times in 2050).
 
 Each slider is a multiplier on that, and the effects multiply:
 
